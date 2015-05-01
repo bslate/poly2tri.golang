@@ -50,8 +50,8 @@ func sweepPoints(tcx *SweepContext) {
 	for i := 1; i < len(tcx.points); i++ {
 		var point = tcx.points[i]
 		var node = pointEvent(tcx, point)
-		for i := 0; i < point.edge_list.Len(); i++ {
-			initSweepEdgeEvent(tcx, point.edge_list[i].(*Edge), node)
+		for i := 0; i < len(point.edge_list); i++ {
+			initSweepEdgeEvent(tcx, point.edge_list[i], node)
 		}
 	}
 }
