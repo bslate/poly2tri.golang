@@ -30,12 +30,6 @@
  */
 package p2t
 
-import (
-	"math"
-)
-
-const M_PI_2 = math.Pi / 2
-const PI_3div4 = 3 * math.Pi / 4
 const EPSILON = 1e-12
 
 const (
@@ -94,4 +88,12 @@ func inScanArea(pa, pb, pc, pd *Point) bool {
 	}
 
 	return true
+}
+
+func isAngleObtuse(pa, pb, pc *Point) bool {
+	var ax = pb.X - pa.X
+	var ay = pb.Y - pa.Y
+	var bx = pc.X - pa.X
+	var by = pc.Y - pa.Y
+	return (ax*bx + ay*by) < 0
 }

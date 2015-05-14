@@ -31,8 +31,8 @@
 package p2t
 
 import (
-	"math"
 	"fmt"
+	"math"
 )
 
 // Triangulate simple polygon with holes
@@ -288,8 +288,7 @@ func fillAdvancingFront(tcx *SweepContext, n *Node) {
 	var node = n.next
 
 	for node.next != nil {
-		var angle = holeAngle(node)
-		if angle > M_PI_2 || angle < -M_PI_2 {
+		if isAngleObtuse(node.point, node.next.point, node.prev.point) {
 			break
 		}
 		fill(tcx, node)
@@ -300,8 +299,7 @@ func fillAdvancingFront(tcx *SweepContext, n *Node) {
 	node = n.prev
 
 	for node.prev != nil {
-		var angle = holeAngle(node)
-		if angle > M_PI_2 || angle < -M_PI_2 {
+		if isAngleObtuse(node.point, node.next.point, node.prev.point) {
 			break
 		}
 		fill(tcx, node)
@@ -310,8 +308,7 @@ func fillAdvancingFront(tcx *SweepContext, n *Node) {
 
 	// fill right basins
 	if n.next != nil && n.next.next != nil {
-		var angle = basinAngle(n)
-		if angle < PI_3div4 {
+		if isBasinAngleRight(n) {
 			fillBasin(tcx, n)
 		}
 	}
@@ -408,26 +405,12 @@ func fill(tcx *SweepContext, node *Node) {
 
 }
 
-func basinAngle(node *Node) float64 {
+// The basin angle is decided against the horizontal line [1,0].
+// return true if angle < 3*π/4
+func isBasinAngleRight(node *Node) bool {
 	var ax = node.point.X - node.next.next.point.X
 	var ay = node.point.Y - node.next.next.point.Y
-	return math.Atan2(ay, ax)
-}
-
-func holeAngle(node *Node) float64 {
-	/* Complex plane
-	 * ab = cosA +i*sinA
-	 * ab = (ax + ay*i)(bx + by*i) = (ax*bx + ay*by) + i(ax*by-ay*bx)
-	 * atan2(y,x) computes the principal value of the argument function
-	 * applied to the complex number x+iy
-	 * Where x = ax*bx + ay*by
-	 *       y = ax*by - ay*bx
-	 */
-	var ax float64 = node.next.point.X - node.point.X
-	var ay float64 = node.next.point.Y - node.point.Y
-	var bx float64 = node.prev.point.X - node.point.X
-	var by float64 = node.prev.point.Y - node.point.Y
-	return math.Atan2(ax*by-ay*bx, ax*bx+ay*by)
+	return (ax >= 0 || math.Abs(ax) < ay)
 }
 
 func fillBasin(tcx *SweepContext, node *Node) {
