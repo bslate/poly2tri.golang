@@ -628,12 +628,6 @@ func flipEdgeEvent(tcx *SweepContext, ep, eq *Point, t *Triangle, p *Point) {
 	var ot = t.neighborAcross(p)
 	var op = ot.oppositePoint(t, p)
 
-	if ot == nil {
-		// If we want to integrate the fillEdgeEvent do it here
-		// With current implementation we should never get here
-		panic(fmt.Sprintf("[BUG:FIXME] FLIP failed due to missing triangle"))
-	}
-
 	if inScanArea(p, t.pointCCW(p), t.pointCW(p), op) {
 		// Lets rotate shared edge one vertex CW
 		rotateTrianglePair(t, p, ot, op)
@@ -699,23 +693,9 @@ func flipScanEdgeEvent(tcx *SweepContext, ep, eq *Point, flip_triangle, t *Trian
 	var ot = t.neighborAcross(p)
 	var op = ot.oppositePoint(t, p)
 
-	if t.neighborAcross(p) == nil {
-		// If we want to integrate the fillEdgeEvent do it here
-		// With current implementation we should never get here
-		//throw new RuntimeException( "[BUG:FIXME] FLIP failed due to missing triangle");
-		panic(fmt.Sprintf("[BUG:FIXME] FLIP failed due to missing triangle"))
-	}
-
 	if inScanArea(eq, flip_triangle.pointCCW(eq), flip_triangle.pointCW(eq), op) {
 		// flip with new edge op.eq
 		flipEdgeEvent(tcx, eq, op, ot, op)
-		// TODO: Actually I just figured out that it should be possible to
-		//       improve this by getting the next ot and op before the the above
-		//       flip and continue the flipScanEdgeEvent here
-		// set new ot and op here and loop back to inScanArea test
-		// also need to set a new flip_triangle first
-		// Turns out at first glance that this is somewhat complicated
-		// so it will have to wait.
 	} else {
 		var newP = nextFlipPoint(ep, eq, ot, op)
 		flipScanEdgeEvent(tcx, ep, eq, flip_triangle, ot, newP)
